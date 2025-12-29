@@ -1,6 +1,14 @@
+/* stylelint-disable at-rule-no-unknown */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+/* stylelint-enable at-rule-no-unknown */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap');
+
+/* ============================================
+   BASE STYLES - Typography & Layout
+   ============================================ */
 
 * {
   margin: 0;
@@ -8,28 +16,276 @@
   box-sizing: border-box;
 }
 
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica',
-    'Arial', sans-serif;
+html {
+  scroll-behavior: smooth;
 }
+
+body {
+  @apply font-inter text-gray-900 bg-white;
+}
+
+/* Typography Base */
+h1, h2, h3, h4, h5, h6 {
+  @apply font-poppins font-bold leading-tight;
+}
+
+h1 {
+  @apply text-4xl md:text-5xl font-extrabold;
+}
+
+h2 {
+  @apply text-3xl md:text-4xl font-bold;
+}
+
+h3 {
+  @apply text-2xl md:text-3xl font-bold;
+}
+
+h4 {
+  @apply text-xl md:text-2xl font-semibold;
+}
+
+h5 {
+  @apply text-lg md:text-xl font-semibold;
+}
+
+h6 {
+  @apply text-base md:text-lg font-semibold;
+}
+
+p {
+  @apply text-gray-700 leading-relaxed;
+}
+
+small {
+  @apply text-sm text-gray-600;
+}
+
+/* ============================================
+   LAYOUT COMPONENTS
+   ============================================ */
 
 .container {
-  @apply max-w-7xl mx-auto px-4;
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
 }
+
+.section {
+  @apply py-12 md:py-16 lg:py-20;
+}
+
+.section-title {
+  @apply text-3xl md:text-4xl font-bold mb-4 text-gray-900;
+}
+
+.section-subtitle {
+  @apply text-lg text-gray-600 mb-8 md:mb-12;
+}
+
+/* Grid System */
+.grid-responsive {
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 lg:gap-8;
+}
+
+/* ============================================
+   BUTTONS - All Variations
+   ============================================ */
 
 .btn {
-  @apply px-4 py-2 rounded-lg font-medium transition-all;
+  @apply inline-flex items-center justify-center px-4 py-2.5 rounded-lg font-medium text-sm transition-all duration-200 cursor-pointer select-none disabled:opacity-50 disabled:cursor-not-allowed;
 }
 
+/* Primary Button */
 .btn-primary {
-  @apply bg-blue-600 text-white hover:bg-blue-700;
+  @apply bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800 shadow-sm hover:shadow-md;
 }
 
-.btn-secondary {
-  @apply bg-gray-200 text-gray-800 hover:bg-gray-300;
+.btn-primary-lg {
+  @apply btn btn-primary px-6 py-3 text-base;
 }
+
+.btn-primary-sm {
+  @apply btn btn-primary px-3 py-1.5 text-xs;
+}
+
+/* Secondary Button */
+.btn-secondary {
+  @apply bg-gray-200 text-gray-900 hover:bg-gray-300 active:bg-gray-400 shadow-sm;
+}
+
+.btn-secondary-lg {
+  @apply btn btn-secondary px-6 py-3 text-base;
+}
+
+/* Success Button */
+.btn-success {
+  @apply bg-green-600 text-white hover:bg-green-700 active:bg-green-800 shadow-sm hover:shadow-md;
+}
+
+/* Danger Button */
+.btn-danger {
+  @apply bg-red-600 text-white hover:bg-red-700 active:bg-red-800 shadow-sm hover:shadow-md;
+}
+
+/* Outline Button */
+.btn-outline {
+  @apply bg-white border-2 border-blue-600 text-blue-600 hover:bg-blue-50 active:bg-blue-100;
+}
+
+/* Ghost Button */
+.btn-ghost {
+  @apply text-gray-700 hover:text-gray-900 hover:bg-gray-100 active:bg-gray-200;
+}
+
+/* ============================================
+   CARDS & CONTAINERS
+   ============================================ */
 
 .card {
-  @apply bg-white rounded-lg shadow-md p-4;
+  @apply bg-white rounded-xl shadow-md p-4 md:p-6 transition-all duration-300 hover:shadow-lg;
+}
+
+.card-lg {
+  @apply card p-6 md:p-8;
+}
+
+.card-sm {
+  @apply card p-3 md:p-4;
+}
+
+.card-bordered {
+  @apply card border border-gray-200;
+}
+
+.card-hover {
+  @apply card hover:shadow-xl hover:scale-105 cursor-pointer;
+}
+
+/* ============================================
+   FORMS & INPUTS
+   ============================================ */
+
+.input-base {
+  @apply w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="search"],
+textarea,
+select {
+  @apply input-base font-inter;
+}
+
+textarea {
+  @apply resize-vertical min-h-32;
+}
+
+.label {
+  @apply block text-sm font-medium text-gray-700 mb-2;
+}
+
+.form-group {
+  @apply mb-4 md:mb-6;
+}
+
+/* ============================================
+   BADGES & TAGS
+   ============================================ */
+
+.badge {
+  @apply inline-block px-3 py-1 rounded-full text-xs font-semibold;
+}
+
+.badge-primary {
+  @apply badge bg-blue-100 text-blue-700;
+}
+
+.badge-success {
+  @apply badge bg-green-100 text-green-700;
+}
+
+.badge-warning {
+  @apply badge bg-yellow-100 text-yellow-700;
+}
+
+.badge-danger {
+  @apply badge bg-red-100 text-red-700;
+}
+
+/* ============================================
+   UTILITIES
+   ============================================ */
+
+.flex-center {
+  @apply flex items-center justify-center;
+}
+
+.flex-between {
+  @apply flex items-center justify-between;
+}
+
+.text-truncate {
+  @apply truncate;
+}
+
+.text-clamp-2 {
+  @apply line-clamp-2;
+}
+
+.text-clamp-3 {
+  @apply line-clamp-3;
+}
+
+.divider {
+  @apply h-px bg-gray-200 my-4 md:my-6;
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-in;
+}
+
+.animate-slide-up {
+  animation: slideInUp 0.3s ease-out;
+}
+
+/* ============================================
+   RESPONSIVE UTILITIES
+   ============================================ */
+
+.hidden-mobile {
+  @apply hidden md:block;
+}
+
+.hidden-desktop {
+  @apply block md:hidden;
+}
+
+.text-responsive {
+  @apply text-sm md:text-base lg:text-lg;
 }
