@@ -188,6 +188,26 @@ const USERS = [
     city: 'Da Nang',
     country: 'Vietnam',
     role: 'user'
+  },
+  {
+    name: 'Test User',
+    email: 'user@example.com',
+    password: 'password123',
+    phone: '0901234567',
+    address: '321 Test St',
+    city: 'Ho Chi Minh',
+    country: 'Vietnam',
+    role: 'user'
+  },
+  {
+    name: 'Test Admin',
+    email: 'admin2@example.com',
+    password: 'admin123',
+    phone: '0908765432',
+    address: '654 Admin Ave',
+    city: 'Hanoi',
+    country: 'Vietnam',
+    role: 'admin'
   }
 ];
 
@@ -202,9 +222,14 @@ async function seedDatabase() {
     await Product.deleteMany({});
     await User.deleteMany({});
 
-    // Insert users
+    // Insert users (use create instead of insertMany to trigger pre('save') middleware)
     console.log('Creating users...');
-    await User.insertMany(USERS);
+    for (const userData of USERS) {
+      const user = new User(userData);
+      console.log('Before save - password:', user.password);
+      await user.save();
+      console.log('After save - password length:', user.password.length);
+    }
     console.log(`✓ Created ${USERS.length} users`);
 
     // Insert products
