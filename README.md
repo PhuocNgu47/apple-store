@@ -1,193 +1,231 @@
-# E-Commerce Application
+# 🍎 Apple Store - E-commerce Demo
 
-Ứng dụng thương mại điện tử đầy đủ chức năng xây dựng với React, Node.js, Express, và MongoDB.
+Website thương mại điện tử bán sản phẩm Apple với đầy đủ tính năng.
 
-## Tính năng
+![Tech Stack](https://img.shields.io/badge/React-18-blue) ![Node.js](https://img.shields.io/badge/Node.js-18-green) ![MongoDB](https://img.shields.io/badge/MongoDB-7.0-green) ![Docker](https://img.shields.io/badge/Docker-Ready-blue)
 
-### Chức năng cơ bản
-- ✅ **Đăng ký/Đăng nhập** - Hệ thống xác thực người dùng với JWT
-- ✅ **Duyệt sản phẩm** - Danh sách sản phẩm với tìm kiếm và lọc theo danh mục
-- ✅ **Giỏ hàng** - Thêm/xóa sản phẩm, cập nhật số lượng
-- ✅ **Thanh toán** - Quá trình checkout với địa chỉ giao hàng
-- ✅ **Quản lý đơn hàng** - Xem danh sách đơn hàng của người dùng
+## ✨ Tính năng
 
-### Chức năng nâng cao
-- 📊 **Thống kê** - Dashboard với biểu đồ doanh số
-- 💬 **Đánh giá sản phẩm** - Hệ thống review và rating
-- 👨‍💼 **Quản lý sản phẩm** - Admin có thể thêm/sửa/xóa sản phẩm
-- 📦 **Theo dõi đơn hàng** - Cập nhật trạng thái đơn hàng
-- 💳 **Nhiều phương thức thanh toán** - Tiền mặt, thẻ tín dụng, chuyển khoản
+### 👤 Khách hàng
+- ✅ Đăng ký / Đăng nhập với JWT
+- ✅ Xem danh sách sản phẩm theo danh mục
+- ✅ Tìm kiếm sản phẩm
+- ✅ Xem chi tiết sản phẩm
+- ✅ Thêm vào giỏ hàng
+- ✅ Thanh toán (COD / QR chuyển khoản)
+- ✅ Xem lịch sử đơn hàng
 
-## Công nghệ sử dụng
+### 👨‍💼 Admin
+- ✅ Dashboard thống kê
+- ✅ Quản lý sản phẩm (CRUD)
+- ✅ Quản lý đơn hàng
+- ✅ Quản lý người dùng
 
-### Frontend
-- React 18
-- Vite
-- Tailwind CSS
-- React Router
-- Zustand (State Management)
-- Axios (HTTP Client)
-- Chart.js (Biểu đồ)
+### 💳 Thanh toán
+- ✅ Thanh toán khi nhận hàng (COD)
+- ✅ Chuyển khoản QR (VietQR/SePay)
+- ✅ Webhook tự động cập nhật trạng thái
 
-### Backend
-- Node.js + Express
-- MongoDB
-- Mongoose (ODM)
-- JWT (Authentication)
-- bcryptjs (Password Hashing)
+## 🛠️ Tech Stack
 
-### DevOps
-- Docker & Docker Compose
-- Multi-stage builds
+| Layer | Technology |
+|-------|------------|
+| Frontend | React 18, Vite, TailwindCSS, Zustand, Framer Motion |
+| Backend | Node.js, Express.js, JWT Authentication |
+| Database | MongoDB 7.0, Mongoose ODM |
+| Payment | VietQR, SePay Webhook |
+| DevOps | Docker, Docker Compose |
 
-## Cài đặt và chạy
+## 🚀 Cài đặt & Chạy
 
 ### Yêu cầu
-- Docker & Docker Compose (đã cài sẵn trên VMware)
-- Hoặc: Node.js 18+, MongoDB
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (khuyên dùng)
+- Hoặc: Node.js 18+, MongoDB 7.0+
 
-### Chạy với Docker (Khuyến nghị)
+### Cách 1: Docker (Khuyên dùng) 🐳
 
 ```bash
-# Clone hoặc download dự án
+# Clone repo
+git clone https://github.com/your-username/ecommerce-project.git
 cd ecommerce-project
 
-# Chạy tất cả services
-docker-compose up --build
+# Chạy với Docker
+docker-compose up --build -d
 
-# Truy cập
-Frontend: http://localhost:3000
-Backend API: http://localhost:5000
-MongoDB: localhost:27017
+# Seed dữ liệu mẫu
+docker exec ecommerce-api node seed.js
+
+# Hoặc seed từ API (nhiều sản phẩm hơn)
+docker exec ecommerce-api node seedFromAPI.js
 ```
 
-### Chạy local development
+**Truy cập:**
+- 🌐 Frontend: http://localhost:3000
+- 🔌 API: http://localhost:5000
+- 🗄️ MongoDB: localhost:27017
 
-**Backend:**
+### Cách 2: Chạy thủ công
+
 ```bash
+# Terminal 1 - Backend
 cd backend
 npm install
 npm run dev
-```
 
-**Frontend:**
-```bash
+# Terminal 2 - Frontend  
 cd frontend
 npm install
 npm run dev
 ```
 
-## API Endpoints
+## 👥 Tài khoản test
 
-### Authentication
-- `POST /api/auth/register` - Đăng ký
-- `POST /api/auth/login` - Đăng nhập
-- `POST /api/auth/verify` - Xác thực token
+| Role | Email | Password |
+|------|-------|----------|
+| 👨‍💼 Admin | admin@example.com | admin123 |
+| 👤 User | user@example.com | password123 |
 
-### Products
-- `GET /api/products` - Lấy danh sách sản phẩm
-- `GET /api/products/:id` - Lấy chi tiết sản phẩm
-- `POST /api/products` - Tạo sản phẩm (admin)
-- `PUT /api/products/:id` - Cập nhật sản phẩm (admin)
-- `DELETE /api/products/:id` - Xóa sản phẩm (admin)
-- `POST /api/products/:id/reviews` - Thêm review
-
-### Orders
-- `GET /api/orders` - Lấy đơn hàng của user
-- `GET /api/orders/:id` - Chi tiết đơn hàng
-- `POST /api/orders` - Tạo đơn hàng
-- `PUT /api/orders/:id` - Cập nhật đơn hàng
-
-### Users
-- `GET /api/users/profile` - Lấy profile user
-- `PUT /api/users/profile` - Cập nhật profile
-
-## Dữ liệu mẫu
-
-Để thêm dữ liệu mẫu, kết nối MongoDB qua MongoDB Compass hoặc CLI:
-
-```bash
-# Kết nối tới MongoDB
-mongosh "mongodb://localhost:27017/ecommerce"
-
-# Hoặc sử dụng script seed data nếu có
-```
-
-## Cấu trúc thư mục
+## 📁 Cấu trúc dự án
 
 ```
 ecommerce-project/
-├── frontend/
+├── backend/                 # Express.js API
+│   ├── models/             # Mongoose schemas
+│   │   ├── User.js
+│   │   ├── Product.js
+│   │   └── Order.js
+│   ├── routes/             # API endpoints
+│   │   ├── auth.js         # Đăng nhập/Đăng ký
+│   │   ├── products.js     # CRUD sản phẩm
+│   │   ├── orders.js       # Quản lý đơn hàng
+│   │   ├── users.js        # Quản lý users
+│   │   └── payment.js      # Thanh toán QR
+│   ├── middleware/
+│   │   └── auth.js         # JWT middleware
+│   ├── server.js           # Entry point
+│   ├── seed.js             # Seed data cơ bản
+│   └── seedFromAPI.js      # Seed từ DummyJSON API
+│
+├── frontend/               # React + Vite
 │   ├── src/
-│   │   ├── pages/       # Các trang chính
-│   │   ├── components/  # React components
-│   │   ├── api/        # API calls
-│   │   ├── store/      # Zustand stores
-│   │   └── styles/     # CSS
-│   ├── Dockerfile
-│   └── package.json
-├── backend/
-│   ├── models/         # MongoDB schemas
-│   ├── routes/         # API routes
-│   ├── middleware/     # Auth middleware
-│   ├── server.js       # Entry point
-│   ├── Dockerfile
-│   └── package.json
-├── docker-compose.yml
+│   │   ├── api/           # Axios config
+│   │   ├── components/    # Reusable components
+│   │   │   ├── Navbar.jsx
+│   │   │   └── Footer.jsx
+│   │   ├── pages/         # Page components
+│   │   │   ├── Home.jsx
+│   │   │   ├── Login.jsx
+│   │   │   ├── Register.jsx
+│   │   │   ├── Cart.jsx
+│   │   │   ├── Checkout.jsx
+│   │   │   ├── Orders.jsx
+│   │   │   ├── PaymentQR.jsx
+│   │   │   ├── AdminDashboard.jsx
+│   │   │   ├── AdminProducts.jsx
+│   │   │   ├── AdminUsers.jsx
+│   │   │   └── AdminOrders.jsx
+│   │   ├── store/         # Zustand state
+│   │   └── styles/        # TailwindCSS
+│   └── index.html
+│
+├── docker-compose.yml      # Docker config
 └── README.md
 ```
 
-## Đăng nhập mẫu
+## 🔌 API Endpoints
 
-Sau khi đăng ký tài khoản, bạn có thể đăng nhập với email và password.
+### Auth
+| Method | Endpoint | Mô tả |
+|--------|----------|-------|
+| POST | `/api/auth/register` | Đăng ký |
+| POST | `/api/auth/login` | Đăng nhập |
+| GET | `/api/auth/me` | Lấy thông tin user |
 
-Admin account (cần tạo thủ công):
-- Email: admin@example.com
-- Password: admin123
-- Role: admin
+### Products
+| Method | Endpoint | Mô tả |
+|--------|----------|-------|
+| GET | `/api/products` | Danh sách sản phẩm |
+| GET | `/api/products/:id` | Chi tiết sản phẩm |
+| POST | `/api/products` | Tạo sản phẩm (Admin) |
+| PUT | `/api/products/:id` | Sửa sản phẩm (Admin) |
+| DELETE | `/api/products/:id` | Xóa sản phẩm (Admin) |
 
-## Troubleshooting
+### Orders
+| Method | Endpoint | Mô tả |
+|--------|----------|-------|
+| GET | `/api/orders` | Đơn hàng của user |
+| POST | `/api/orders` | Tạo đơn hàng |
+| PATCH | `/api/orders/:id/status` | Cập nhật trạng thái (Admin) |
 
-### MongoDB connection error
+### Payment
+| Method | Endpoint | Mô tả |
+|--------|----------|-------|
+| GET | `/api/payment/qr/:orderId` | Lấy QR thanh toán |
+| GET | `/api/payment/status/:orderId` | Kiểm tra trạng thái |
+| POST | `/api/payment/sepay-webhook` | Webhook từ SePay |
+| POST | `/api/payment/simulate/:orderId` | Giả lập thanh toán (Test) |
+
+## 💳 Cấu hình thanh toán SePay
+
+### 1. Đăng ký SePay
+Truy cập https://my.sepay.vn và đăng ký tài khoản.
+
+### 2. Cấu hình biến môi trường
+
+Sửa file `docker-compose.yml`:
+
+```yaml
+environment:
+  SEPAY_BANK_ID: MB              # Mã ngân hàng
+  SEPAY_ACCOUNT_NO: "0935771670" # Số tài khoản
+  SEPAY_ACCOUNT_NAME: NGUYEN HUU PHUOC
+  SEPAY_API_KEY: your-api-key    # Lấy từ SePay
 ```
-Error: connect ECONNREFUSED 127.0.0.1:27017
-```
-Giải pháp: Đảm bảo MongoDB container đang chạy
-```bash
-docker-compose ps
-docker-compose logs mongodb
-```
 
-### API not found (404)
-- Kiểm tra backend có đang chạy trên port 5000
-- Kiểm tra VITE_API_URL trong frontend
+### 3. Cấu hình Webhook (Production)
 
-### Port conflict
-Thay đổi ports trong docker-compose.yml hoặc:
-```bash
-docker-compose down
-# Chỉnh sửa docker-compose.yml
-docker-compose up
+Trong SePay Dashboard, thêm webhook URL:
+```
+https://your-domain.com/api/payment/sepay-webhook
 ```
 
-## Phát triển thêm
+### Danh sách mã ngân hàng phổ biến
 
-### Thêm feature mới
-1. Tạo model/schema trong backend/models
-2. Tạo route trong backend/routes
-3. Tạo page/component trong frontend/src
-4. Cập nhật API calls trong frontend/api
+| Ngân hàng | Mã |
+|-----------|-----|
+| MB Bank | `MB` |
+| Vietcombank | `VCB` |
+| Techcombank | `TCB` |
+| ACB | `ACB` |
+| BIDV | `BIDV` |
+| VPBank | `VPB` |
 
-### Deployment
-- Cập nhật JWT_SECRET trong .env
-- Thay đổi MONGODB_URI để trỏ tới production DB
-- Build và push Docker images lên registry
-- Deploy trên cloud platform (AWS, Azure, Heroku, etc.)
+## 🚀 Deploy Production
 
-## Support
+### Environment Variables
 
-Để báo cáo lỗi hoặc yêu cầu feature, tạo issue hoặc liên hệ team phát triển.
+```env
+# Backend
+MONGODB_URI=mongodb+srv://...
+JWT_SECRET=your-super-secret-key
+NODE_ENV=production
+SEPAY_BANK_ID=MB
+SEPAY_ACCOUNT_NO=your-account
+SEPAY_ACCOUNT_NAME=YOUR NAME
+SEPAY_API_KEY=your-sepay-key
 
-## License
+# Frontend
+VITE_API_URL=https://your-api.com/api
+```
 
-MIT License
+## 📝 License
+
+MIT License - Sử dụng tự do cho mục đích học tập.
+
+## 👨‍💻 Tác giả
+
+**Nguyen Huu Phuoc**
+
+---
+
+⭐ Nếu thấy hữu ích, hãy star repo này!

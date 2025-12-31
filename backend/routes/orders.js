@@ -1,17 +1,24 @@
 import express from 'express';
 import Order from '../models/Order.js';
-import { protect } from '../middleware/auth.js';
+import { protect, admin } from '../middleware/auth.js';
 
 const router = express.Router();
 
 // Get user orders
 router.get('/', protect, async (req, res) => {
   try {
-    const orders = await Order.find({ user: req.user.id })
-      .populate('items.product')
+    // If admin, get all orders; if user, get only their orders
+    let query = {};
+    if (req.user.role !== 'admin') {
+      query.userId = req.user.id;
+    }
+    
+    const orders = await Order.find(query)
+      .populate('userId', 'name email')
+      .populate('items.productId', 'name price')
       .sort({ createdAt: -1 });
     
-    res.json(orders);
+    res.json({ orders });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -20,14 +27,16 @@ router.get('/', protect, async (req, res) => {
 // Get order by ID
 router.get('/:id', protect, async (req, res) => {
   try {
-    const order = await Order.findById(req.params.id).populate('items.product');
+    const order = await Order.findById(req.params.id)
+      .populate('userId', 'name email')
+      .populate('items.productId', 'name price image');
     
     if (!order) {
       return res.status(404).json({ message: 'Order not found' });
     }
     
-    // Check if user owns this order
-    if (order.user.toString() !== req.user.id) {
+    // Check if user owns this order or is admin
+    if (order.userId._id.toString() !== req.user.id && req.user.role !== 'admin') {
       return res.status(403).json({ message: 'Not authorized' });
     }
     
@@ -49,11 +58,12 @@ router.post('/', protect, async (req, res) => {
     const totalAmount = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     
     const order = new Order({
-      user: req.user.id,
+      userId: req.user.id,
       items,
       totalAmount,
       shippingAddress,
-      paymentMethod
+      paymentMethod,
+      status: 'pending'
     });
     
     await order.save();
@@ -63,13 +73,33 @@ router.post('/', protect, async (req, res) => {
   }
 });
 
-// Update order status (admin)
-router.put('/:id', protect, async (req, res) => {
+// Update order status (admin only)
+router.patch('/:id/status', protect, admin, async (req, res) => {
   try {
-    const { orderStatus, paymentStatus } = req.body;
+    const { status } = req.body;
+    if (!['pending', 'confirmed', 'shipped', 'delivered'].includes(status)) {
+      return res.status(400).json({ message: 'Invalid status' });
+    }
+    
     const order = await Order.findByIdAndUpdate(
       req.params.id,
-      { orderStatus, paymentStatus, updatedAt: Date.now() },
+      { status },
+      { new: true }
+    );
+    
+    res.json({ message: 'Order status updated', order });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Update order (admin)
+router.put('/:id', protect, admin, async (req, res) => {
+  try {
+    const { status, paymentStatus } = req.body;
+    const order = await Order.findByIdAndUpdate(
+      req.params.id,
+      { status, paymentStatus, updatedAt: Date.now() },
       { new: true }
     );
     

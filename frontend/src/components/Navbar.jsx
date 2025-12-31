@@ -20,30 +20,30 @@ export default function Navbar() {
   return (
     <nav className="sticky top-0 z-50 bg-white border-b-4 border-blue-600 shadow-md">
       <Container>
-        <div className="flex justify-between items-center py-4">
+        <div className="flex items-center justify-between py-4">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition">
+          <Link to="/" className="flex items-center gap-2 transition hover:opacity-80">
             <span className="text-4xl">🍎</span>
-            <span className="text-2xl font-poppins font-bold text-gray-900 hidden sm:inline">
+            <span className="hidden text-2xl font-bold text-gray-900 font-poppins sm:inline">
               Apple Store
             </span>
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-6">
+          <div className="items-center hidden space-x-6 md:flex">
             <Link 
               to="/" 
-              className="text-gray-700 hover:text-blue-600 font-medium transition"
+              className="font-medium text-gray-700 transition hover:text-blue-600"
             >
               📱 Sản Phẩm
             </Link>
 
             <Link to="/cart" className="relative group">
-              <span className="text-gray-700 hover:text-blue-600 font-medium transition">
+              <span className="font-medium text-gray-700 transition hover:text-blue-600">
                 🛒 Giỏ Hàng
               </span>
               {cartItems.length > 0 && (
-                <span className="absolute -top-2 -right-3 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                <span className="absolute flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-500 rounded-full -top-2 -right-3">
                   {cartItems.length}
                 </span>
               )}
@@ -53,23 +53,23 @@ export default function Navbar() {
               <>
                 <Link 
                   to="/orders" 
-                  className="text-gray-700 hover:text-blue-600 font-medium transition"
+                  className="font-medium text-gray-700 transition hover:text-blue-600"
                 >
                   📦 Đơn Hàng
                 </Link>
 
                 {user?.role === 'admin' && (
                   <Link 
-                    to="/admin/products" 
-                    className="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full font-semibold hover:bg-yellow-200 transition"
+                    to="/admin" 
+                    className="px-3 py-1 font-semibold text-yellow-700 transition bg-yellow-100 rounded-full hover:bg-yellow-200"
                   >
                     ⚙️ Admin
                   </Link>
                 )}
 
-                <div className="flex items-center gap-3 border-l pl-6">
+                <div className="flex items-center gap-3 pl-6 border-l">
                   <div>
-                    <p className="text-gray-900 font-medium text-sm">{user?.name}</p>
+                    <p className="text-sm font-medium text-gray-900">{user?.name}</p>
                     <p className="text-xs text-gray-500">
                       {user?.role === 'admin' ? 'Administrator' : 'Khách hàng'}
                     </p>
@@ -105,7 +105,7 @@ export default function Navbar() {
 
           {/* Mobile Menu Toggle */}
           <button
-            className="md:hidden text-3xl text-gray-700 hover:text-blue-600 transition"
+            className="text-3xl text-gray-700 transition md:hidden hover:text-blue-600"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
             {mobileMenuOpen ? '✕' : '☰'}
@@ -114,10 +114,10 @@ export default function Navbar() {
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden bg-gray-50 border-t p-4 space-y-3 animate-slide-up">
+          <div className="p-4 space-y-3 border-t md:hidden bg-gray-50 animate-slide-up">
             <Link 
               to="/" 
-              className="block py-2 text-gray-700 hover:text-blue-600 font-medium"
+              className="block py-2 font-medium text-gray-700 hover:text-blue-600"
               onClick={() => setMobileMenuOpen(false)}
             >
               📱 Sản Phẩm
@@ -125,7 +125,7 @@ export default function Navbar() {
 
             <Link 
               to="/cart" 
-              className="block py-2 text-gray-700 hover:text-blue-600 font-medium"
+              className="block py-2 font-medium text-gray-700 hover:text-blue-600"
               onClick={() => setMobileMenuOpen(false)}
             >
               🛒 Giỏ Hàng ({cartItems.length})
@@ -135,7 +135,7 @@ export default function Navbar() {
               <>
                 <Link 
                   to="/orders" 
-                  className="block py-2 text-gray-700 hover:text-blue-600 font-medium"
+                  className="block py-2 font-medium text-gray-700 hover:text-blue-600"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   📦 Đơn Hàng
@@ -143,16 +143,16 @@ export default function Navbar() {
 
                 {user?.role === 'admin' && (
                   <Link 
-                    to="/admin/products" 
-                    className="block py-2 px-3 bg-yellow-100 text-yellow-700 rounded font-semibold"
+                    to="/admin" 
+                    className="block px-3 py-2 font-semibold text-yellow-700 bg-yellow-100 rounded"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     ⚙️ Admin Panel
                   </Link>
                 )}
 
-                <div className="py-2 border-t pt-3">
-                  <p className="text-gray-900 font-medium mb-2">{user?.name}</p>
+                <div className="py-2 pt-3 border-t">
+                  <p className="mb-2 font-medium text-gray-900">{user?.name}</p>
                   <Button 
                     variant="secondary"
                     size="md"
@@ -164,7 +164,7 @@ export default function Navbar() {
                 </div>
               </>
             ) : (
-              <div className="space-y-2 border-t pt-3">
+              <div className="pt-3 space-y-2 border-t">
                 <Button 
                   variant="secondary"
                   size="md"

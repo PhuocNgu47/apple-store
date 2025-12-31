@@ -34,12 +34,16 @@ export const orderAPI = {
   getAll: () => api.get('/orders'),
   getOne: (id) => api.get(`/orders/${id}`),
   create: (data) => api.post('/orders', data),
-  update: (id, data) => api.put(`/orders/${id}`, data)
+  update: (id, data) => api.put(`/orders/${id}`, data),
+  updateStatus: (id, status) => api.patch(`/orders/${id}/status`, { status })
 };
 
 export const userAPI = {
   getProfile: () => api.get('/users/profile'),
-  updateProfile: (data) => api.put('/users/profile', data)
+  updateProfile: (data) => api.put('/users/profile', data),
+  getAll: () => api.get('/users'),
+  updateRole: (id, role) => api.put(`/users/${id}/role`, { role }),
+  deleteUser: (id) => api.delete(`/users/${id}`)
 };
 
 export default api;
