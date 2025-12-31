@@ -21,6 +21,11 @@ services:
       JWT_SECRET: tmdt_secret_key_123456
       JWT_EXPIRE: 7d
       NODE_ENV: production
+      # SePay Payment Config
+      SEPAY_BANK_ID: MB
+      SEPAY_ACCOUNT_NO: "0935771670"
+      SEPAY_ACCOUNT_NAME: NGUYEN HUU PHUOC
+      SEPAY_API_KEY: your-sepay-api-key-here
     depends_on:
       - mongodb
     networks:

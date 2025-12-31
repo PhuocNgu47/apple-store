@@ -5,13 +5,13 @@ const orderSchema = new mongoose.Schema({
     type: String,
     unique: true
   },
-  user: {
+  userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true
   },
   items: [{
-    product: {
+    productId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Product'
     },
@@ -32,17 +32,33 @@ const orderSchema = new mongoose.Schema({
   },
   paymentMethod: {
     type: String,
-    enum: ['credit_card', 'debit_card', 'bank_transfer', 'cash_on_delivery'],
+    enum: ['credit_card', 'debit_card', 'bank_transfer', 'cash_on_delivery', 'qr_transfer'],
     default: 'cash_on_delivery'
   },
   paymentStatus: {
     type: String,
-    enum: ['pending', 'completed', 'failed'],
+    enum: ['pending', 'completed', 'failed', 'refunded'],
     default: 'pending'
   },
-  orderStatus: {
+  // New payment fields for SePay integration
+  paidAt: {
+    type: Date
+  },
+  paymentDetails: {
+    method: String,
+    gateway: String,
+    transactionId: String,
+    referenceCode: String,
+    amount: Number,
+    content: String,
+    paidAt: Date
+  },
+  paymentNote: {
+    type: String
+  },
+  status: {
     type: String,
-    enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'],
+    enum: ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'],
     default: 'pending'
   },
   createdAt: {
@@ -55,12 +71,13 @@ const orderSchema = new mongoose.Schema({
   }
 });
 
-// Auto-generate order number
+// Auto-generate order number (số dễ nhớ cho chuyển khoản)
 orderSchema.pre('save', async function(next) {
   if (!this.orderNumber) {
-    const count = await mongoose.model('Order').countDocuments();
-    this.orderNumber = `ORD-${Date.now()}-${count + 1}`;
+    // Format: timestamp cuối (dễ copy vào nội dung chuyển khoản)
+    this.orderNumber = `${Date.now()}`;
   }
+  this.updatedAt = new Date();
   next();
 });
 

@@ -179,7 +179,7 @@ select {
 }
 
 textarea {
-  @apply resize-vertical min-h-32;
+  @apply resize min-h-32;
 }
 
 .label {
