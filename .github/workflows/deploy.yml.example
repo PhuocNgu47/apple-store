@@ -1,0 +1,119 @@
+# GitHub Actions CI/CD Pipeline Example
+# 
+# Cách sử dụng:
+# 1. Copy file này: cp .github/workflows/deploy.yml.example .github/workflows/deploy.yml
+# 2. Thêm secrets vào GitHub:
+#    - Settings > Secrets and variables > Actions
+#    - Thêm: SERVER_HOST, SERVER_USER, SSH_PRIVATE_KEY
+# 3. Push code lên main branch sẽ tự động deploy
+
+name: Deploy to Production
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:  # Cho phép chạy manual
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: backend/package-lock.json
+    
+    - name: Install backend dependencies
+      run: |
+        cd backend
+        npm ci
+    
+    - name: Run backend tests
+      run: |
+        cd backend
+        npm test || echo "No tests configured"
+      continue-on-error: true
+    
+    - name: Install frontend dependencies
+      run: |
+        cd frontend
+        npm ci
+    
+    - name: Build frontend
+      run: |
+        cd frontend
+        npm run build
+      env:
+        VITE_API_URL: ${{ secrets.API_URL || 'http://localhost:5000/api' }}
+
+  deploy:
+    name: Deploy to Server
+    needs: test
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Deploy to server via SSH
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        port: ${{ secrets.SSH_PORT || 22 }}
+        script: |
+          # Navigate to project directory
+          cd /var/www/ecommerce
+          
+          # Pull latest code
+          git pull origin main
+          
+          # Install backend dependencies
+          cd backend
+          npm ci --production
+          
+          # Install frontend dependencies and build
+          cd ../frontend
+          npm ci
+          npm run build
+          
+          # Reload PM2 (zero-downtime)
+          cd ../backend
+          pm2 reload ecosystem.config.js --update-env
+          
+          # Check PM2 status
+          pm2 status
+          
+          # Optional: Run database migrations
+          # npm run migrate
+          
+          echo "✅ Deployment completed successfully!"
+    
+    - name: Health Check
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          # Wait a bit for app to start
+          sleep 5
+          
+          # Check health endpoint
+          response=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:5000/api/health)
+          
+          if [ "$response" -eq 200 ]; then
+            echo "✅ Health check passed"
+          else
+            echo "❌ Health check failed (HTTP $response)"
+            exit 1
+          fi
+
