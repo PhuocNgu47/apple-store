@@ -1,5 +1,8 @@
 FROM node:18-alpine AS build
 
+# Build argument cho VITE_API_URL
+ARG VITE_API_URL=http://localhost:5000/api
+
 WORKDIR /app
 
 COPY package*.json ./
@@ -7,6 +10,9 @@ COPY package*.json ./
 RUN npm install
 
 COPY . .
+
+# Set environment variable cho build time
+ENV VITE_API_URL=$VITE_API_URL
 
 RUN npm run build
 

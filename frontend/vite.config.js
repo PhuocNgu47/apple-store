@@ -20,5 +20,8 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     emptyOutDir: true
-  }
+  },
+  // VITE_API_URL sẽ được set từ environment variable khi build
+  // Không cần hardcode ở đây
 })
+

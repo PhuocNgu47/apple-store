@@ -7,3 +7,6 @@ npm-debug.log
 README.md
 .env.example
 build
+dist
+*.log
+.vite

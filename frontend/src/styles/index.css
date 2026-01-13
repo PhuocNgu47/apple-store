@@ -1,10 +1,11 @@
+/* Import fonts first - must be before @tailwind */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap');
+
 /* stylelint-disable at-rule-no-unknown */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 /* stylelint-enable at-rule-no-unknown */
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap');
 
 /* ============================================
    BASE STYLES - Typography & Layout
@@ -20,8 +21,34 @@ html {
   scroll-behavior: smooth;
 }
 
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
 body {
   @apply font-inter text-gray-900 bg-white;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  body {
+    @apply bg-oled-black text-gray-50;
+  }
 }
 
 /* Typography Base */
@@ -30,7 +57,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 h1 {
-  @apply text-4xl md:text-5xl font-extrabold;
+  @apply text-4xl md:text-5xl font-extrabold tracking-tight;
 }
 
 h2 {
@@ -41,28 +68,53 @@ h3 {
   @apply text-2xl md:text-3xl font-bold;
 }
 
-h4 {
-  @apply text-xl md:text-2xl font-semibold;
-}
-
-h5 {
-  @apply text-lg md:text-xl font-semibold;
-}
-
-h6 {
-  @apply text-base md:text-lg font-semibold;
-}
-
 p {
   @apply text-gray-700 leading-relaxed;
 }
 
-small {
-  @apply text-sm text-gray-600;
+/* ============================================
+   GLASS MORPHISM UTILITIES
+   ============================================ */
+
+.glass {
+  @apply bg-white/80 backdrop-blur-lg border border-white/30 shadow-glass;
+}
+
+.glass-dark {
+  @apply bg-gray-900/70 backdrop-blur-lg border border-gray-700/30 shadow-glass-dark;
+}
+
+.glass-card {
+  @apply glass rounded-3xl p-6 hover:shadow-xl transition-all duration-300;
 }
 
 /* ============================================
-   LAYOUT COMPONENTS
+   BENTO GRID & LAYOUT
+   ============================================ */
+
+.bento-grid {
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-max;
+}
+
+.bento-item {
+  @apply glass-card;
+}
+
+.bento-item-span-2 {
+  @apply md:col-span-2;
+}
+
+/* ============================================
+   SCROLL REVEAL ANIMATIONS
+   ============================================ */
+
+.scroll-reveal {
+  opacity: 0;
+  animation: slideInUp 0.6s ease-out forwards;
+}
+
+/* ============================================
+   CONTAINER
    ============================================ */
 
 .container {
