@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { productAPI } from '../api';
 import { useAuthStore } from '../store';
+import Loader from '../components/UI/Loader';
+import { ProductForm, ProductsTable } from '../features/admin';
 
 export default function AdminProducts() {
   const navigate = useNavigate();
@@ -114,7 +116,11 @@ export default function AdminProducts() {
   };
 
   if (loading) {
-    return <div className="min-h-screen bg-gray-100 flex items-center justify-center">Đang tải...</div>;
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <Loader size="lg" text="Đang tải..." fullScreen={false} />
+      </div>
+    );
   }
 
   return (
@@ -142,198 +148,21 @@ export default function AdminProducts() {
 
         {/* Form */}
         {showForm && (
-          <div className="bg-white rounded-lg shadow p-6 mb-8">
-            <h2 className="text-xl font-bold mb-4">
-              {editingId ? '✏️ Chỉnh Sửa Sản Phẩm' : '➕ Thêm Sản Phẩm Mới'}
-            </h2>
-            
-            <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Tên Sản Phẩm *</label>
-                <input
-                  type="text"
-                  name="name"
-                  placeholder="VD: iPhone 15 Pro Max"
-                  value={formData.name}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  required
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Danh Mục *</label>
-                <select
-                  name="category"
-                  value={formData.category}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="iPhone">iPhone</option>
-                  <option value="iPad">iPad</option>
-                  <option value="Mac">Mac</option>
-                  <option value="Apple Watch">Apple Watch</option>
-                  <option value="AirPods">AirPods</option>
-                  <option value="Accessories">Phụ Kiện</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Giá Bán ($) *</label>
-                <input
-                  type="number"
-                  name="price"
-                  placeholder="999"
-                  value={formData.price}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  step="0.01"
-                  min="0"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Giá Gốc ($)</label>
-                <input
-                  type="number"
-                  name="originalPrice"
-                  placeholder="1099 (để trống nếu không giảm giá)"
-                  value={formData.originalPrice}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  step="0.01"
-                  min="0"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Số Lượng Tồn Kho *</label>
-                <input
-                  type="number"
-                  name="stock"
-                  placeholder="100"
-                  value={formData.stock}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  min="0"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">URL Hình Ảnh</label>
-                <input
-                  type="text"
-                  name="image"
-                  placeholder="https://example.com/image.jpg"
-                  value={formData.image}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Mô Tả Sản Phẩm</label>
-                <textarea
-                  name="description"
-                  placeholder="Nhập mô tả chi tiết về sản phẩm..."
-                  value={formData.description}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  rows="4"
-                />
-              </div>
-
-              <div className="md:col-span-2 flex gap-3">
-                <button
-                  type="submit"
-                  className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium"
-                >
-                  {editingId ? '💾 Cập Nhật' : '✓ Thêm Sản Phẩm'}
-                </button>
-                <button
-                  type="button"
-                  onClick={resetForm}
-                  className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
-                >
-                  Hủy
-                </button>
-              </div>
-            </form>
-          </div>
+          <ProductForm
+            formData={formData}
+            editingId={editingId}
+            onChange={handleChange}
+            onSubmit={handleSubmit}
+            onCancel={resetForm}
+          />
         )}
 
         {/* Products Table */}
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50 border-b">
-                <tr>
-                  <th className="px-6 py-3 text-left text-sm font-medium text-gray-700">Hình</th>
-                  <th className="px-6 py-3 text-left text-sm font-medium text-gray-700">Tên Sản Phẩm</th>
-                  <th className="px-6 py-3 text-left text-sm font-medium text-gray-700">Danh Mục</th>
-                  <th className="px-6 py-3 text-right text-sm font-medium text-gray-700">Giá</th>
-                  <th className="px-6 py-3 text-right text-sm font-medium text-gray-700">Kho</th>
-                  <th className="px-6 py-3 text-center text-sm font-medium text-gray-700">Hành Động</th>
-                </tr>
-              </thead>
-              <tbody>
-                {products.map(product => (
-                  <tr key={product._id} className="border-b hover:bg-gray-50">
-                    <td className="px-6 py-4">
-                      <img 
-                        src={product.image || 'https://via.placeholder.com/50'} 
-                        alt={product.name}
-                        className="w-12 h-12 object-cover rounded"
-                      />
-                    </td>
-                    <td className="px-6 py-4">
-                      <p className="font-medium text-gray-900">{product.name}</p>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="px-2 py-1 bg-blue-100 text-blue-800 text-sm rounded">
-                        {product.category}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <p className="font-bold text-blue-600">${product.price}</p>
-                      {product.originalPrice > product.price && (
-                        <p className="text-sm text-gray-400 line-through">${product.originalPrice}</p>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <span className={`font-medium ${product.stock < 10 ? 'text-red-600' : 'text-green-600'}`}>
-                        {product.stock}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      <button
-                        onClick={() => handleEdit(product)}
-                        className="px-3 py-1 text-blue-600 hover:bg-blue-50 rounded mr-2"
-                      >
-                        ✏️ Sửa
-                      </button>
-                      <button
-                        onClick={() => handleDelete(product._id)}
-                        className="px-3 py-1 text-red-600 hover:bg-red-50 rounded"
-                      >
-                        🗑️ Xóa
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {products.length === 0 && (
-            <div className="text-center py-12">
-              <p className="text-gray-500 text-lg">📦 Chưa có sản phẩm nào</p>
-              <p className="text-gray-400">Nhấn "Thêm Sản Phẩm" để bắt đầu</p>
-            </div>
-          )}
-        </div>
+        <ProductsTable
+          products={products}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+        />
 
         {/* Summary */}
         <div className="mt-4 text-gray-600 text-sm">

@@ -7,6 +7,10 @@ import { Helmet } from 'react-helmet-async';
 import toast from 'react-hot-toast';
 import { FiShoppingCart, FiEye, FiTruck, FiShield, FiHeadphones } from 'react-icons/fi';
 import { FaApple, FaStar } from 'react-icons/fa';
+import { ProductCard } from '../components/ProductCard';
+import { AddToCartFeedback } from '../components/AddToCartFeedback';
+import { ProductGridSkeleton } from '../components/UI';
+import { useDebounce } from 'use-debounce';
 
 export default function Home() {
   const navigate = useNavigate();
@@ -16,22 +20,98 @@ export default function Home() {
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('');
   const [categories] = useState(['iPhone', 'iPad', 'Apple Watch', 'Accessories']);
+  const [origin, setOrigin] = useState('');
+  const [condition, setCondition] = useState('');
+  const [storage, setStorage] = useState('');
+  const [color, setColor] = useState('');
+  const [addToCartFeedback, setAddToCartFeedback] = useState({ isOpen: false, product: null });
+  
+  // Debounce search để tránh spam API
+  const [debouncedSearch] = useDebounce(search, 500);
 
   useEffect(() => {
     fetchProducts();
-  }, [search, category]);
+  }, [debouncedSearch, category]); // Dùng debouncedSearch thay vì search
+
+  // Gom meta tạm thời từ tên sản phẩm để demo bộ lọc VN (VNA/Quốc tế, dung lượng, màu, tình trạng)
+  const addDerivedMeta = (product) => {
+    const name = (product.name || '').toLowerCase();
+    const originMeta = name.includes('vna') ? 'VNA' : 'Quốc tế';
+    const storageMatch = name.match(/(1tb|512|256|128)\s?(tb|gb)?/i);
+    const storageMeta = storageMatch ? storageMatch[0].toUpperCase().replace('TB', 'TB').replace('GB', 'GB') : '128GB';
+    const colorMeta = name.includes('purple')
+      ? 'Deep Purple'
+      : name.includes('gold')
+        ? 'Gold'
+        : name.includes('blue')
+          ? 'Blue'
+          : 'Titan';
+    const conditionMeta = product.originalPrice && product.originalPrice > product.price
+      ? 'Like New 99%'
+      : 'Mới 100%';
+
+    return { ...product, meta: { origin: originMeta, storage: storageMeta, color: colorMeta, condition: conditionMeta } };
+  };
+
+  const enrichedProducts = products.map(addDerivedMeta);
+  const filteredProducts = enrichedProducts.filter((p) => {
+    const matchesOrigin = origin ? p.meta.origin === origin : true;
+    const matchesCondition = condition ? p.meta.condition === condition : true;
+    const matchesStorage = storage ? p.meta.storage === storage : true;
+    const matchesColor = color ? p.meta.color === color : true;
+    return matchesOrigin && matchesCondition && matchesStorage && matchesColor;
+  });
 
   const fetchProducts = async () => {
     try {
       setLoading(true);
       const params = {};
-      if (search) params.search = search;
+      if (debouncedSearch) params.search = debouncedSearch; // Dùng debouncedSearch
       if (category) params.category = category;
       
       const response = await productAPI.getAll(params);
       setProducts(response.data.products || []);
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/0e3c93b9-6f1c-4dd1-b04b-99cb93fefc2f',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          sessionId:'debug-session',
+          runId:'pre-fix',
+          hypothesisId:'H2',
+          location:'Home.jsx:fetchProducts:success',
+          message:'Fetched products',
+          data:{
+            count: response?.data?.products?.length || 0,
+            sample: (response?.data?.products || []).slice(0,3).map(p => ({
+              id: p._id,
+              name: p.name,
+              image: p.image,
+              thumbnail: p.thumbnail,
+              images: Array.isArray(p.images) ? p.images.slice(0,2) : []
+            }))
+          },
+          timestamp:Date.now()
+        })
+      }).catch(()=>{});
+      // #endregion
     } catch (error) {
       console.error('Failed to fetch products:', error);
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/0e3c93b9-6f1c-4dd1-b04b-99cb93fefc2f',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          sessionId:'debug-session',
+          runId:'pre-fix',
+          hypothesisId:'H2',
+          location:'Home.jsx:fetchProducts:error',
+          message:'Fetch products failed',
+          data:{ error: error?.message || 'unknown' },
+          timestamp:Date.now()
+        })
+      }).catch(()=>{});
+      // #endregion
       toast.error('Không thể tải sản phẩm');
     } finally {
       setLoading(false);
@@ -46,7 +126,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 via-white to-gray-50">
       {/* SEO Meta Tags */}
       <Helmet>
         <title>Apple Store Vietnam - Mua iPhone, iPad, MacBook Chính Hãng</title>
@@ -59,9 +139,13 @@ export default function Home() {
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white py-20"
+        className="relative py-32 overflow-hidden text-white bg-gradient-to-br from-gray-950 via-blue-900 to-gray-950"
       >
-        <div className="container mx-auto px-4">
+        {/* Gradient Blob Background */}
+        <div className="absolute rounded-full pointer-events-none -top-40 -right-40 w-80 h-80 bg-blue-500/10 blur-3xl"></div>
+        <div className="absolute rounded-full pointer-events-none -bottom-40 -left-40 w-80 h-80 bg-purple-500/10 blur-3xl"></div>
+
+        <div className="container relative z-10 px-4 mx-auto">
           <motion.div
             initial={{ y: 30, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
@@ -71,7 +155,7 @@ export default function Home() {
               <FaApple className="text-5xl" />
               <h1 className="text-5xl font-bold">Apple Official Store</h1>
             </div>
-            <p className="text-xl opacity-90 mb-8 max-w-2xl">
+            <p className="max-w-2xl mb-8 text-xl leading-relaxed opacity-80">
               Các sản phẩm Apple chính hãng, được cập nhật liên tục với mức giá cạnh tranh nhất thị trường
             </p>
           </motion.div>
@@ -83,13 +167,13 @@ export default function Home() {
           >
             <button
               onClick={() => setCategory('iPhone')}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl text-lg font-semibold transition-all hover:scale-105"
+              className="px-8 py-3 text-lg font-semibold text-white transition-all bg-blue-600 shadow-lg hover:bg-blue-700 rounded-3xl hover:scale-105"
             >
               Khám phá iPhone
             </button>
             <button
               onClick={() => setCategory('iPad')}
-              className="bg-gray-700 text-white px-8 py-3 rounded-xl hover:bg-gray-600 transition-all hover:scale-105"
+              className="px-8 py-3 text-white transition-all border bg-white/20 backdrop-blur rounded-3xl hover:bg-white/30 hover:scale-105 border-white/30"
             >
               Xem iPad
             </button>
@@ -98,9 +182,9 @@ export default function Home() {
       </motion.div>
 
       {/* Category Navigation */}
-      <div className="sticky top-16 bg-white shadow-md z-40">
+      <div className="sticky z-40 bg-white shadow-md top-16">
         <div className="container py-4">
-          <div className="flex gap-2 overflow-x-auto pb-2">
+          <div className="flex gap-2 pb-2 overflow-x-auto">
             <button
               onClick={() => setCategory('')}
               className={`px-4 py-2 rounded-full whitespace-nowrap transition ${
@@ -129,16 +213,30 @@ export default function Home() {
       </div>
 
       <div className="container py-12">
+        {/* Bộ lọc VN cơ bản (demo) */}
+        <div className="grid grid-cols-1 gap-4 p-4 mb-8 border border-gray-100 md:grid-cols-4 bg-gray-50 rounded-2xl">
+          <FilterSelect label="Xuất xứ" value={origin} onChange={setOrigin} options={[{ label: 'Tất cả', value: '' }, { label: 'VNA', value: 'VNA' }, { label: 'Quốc tế', value: 'Quốc tế' }]} />
+          <FilterSelect label="Tình trạng" value={condition} onChange={setCondition} options={[{ label: 'Tất cả', value: '' }, { label: 'Mới 100%', value: 'Mới 100%' }, { label: 'Like New 99%', value: 'Like New 99%' }]} />
+          <FilterSelect label="Dung lượng" value={storage} onChange={setStorage} options={[{ label: 'Tất cả', value: '' }, { label: '128GB', value: '128GB' }, { label: '256GB', value: '256GB' }, { label: '512GB', value: '512GB' }, { label: '1TB', value: '1TB' }]} />
+          <FilterSelect label="Màu sắc" value={color} onChange={setColor} options={[{ label: 'Tất cả', value: '' }, { label: 'Deep Purple', value: 'Deep Purple' }, { label: 'Gold', value: 'Gold' }, { label: 'Blue', value: 'Blue' }, { label: 'Titan', value: 'Titan' }]} />
+        </div>
+
         {/* Featured Products Section */}
         {!category && products.filter(p => p.name.includes('Pro')).length > 0 && (
           <section className="mb-16">
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex items-center justify-between mb-6">
               <h2 className="text-3xl font-bold">⭐ Sản Phẩm Nổi Bật</h2>
               <a href="#" className="text-blue-600 hover:underline">Xem tất cả →</a>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
               {products.filter(p => p.name.includes('Pro')).slice(0, 3).map(product => (
-                <ProductCard key={product._id} product={product} addToCart={handleAddToCart} navigate={navigate} />
+                <ProductCard 
+                  key={product._id} 
+                  product={product} 
+                  onQuickViewAdd={(prod) => {
+                    setAddToCartFeedback({ isOpen: true, product: prod });
+                  }}
+                />
               ))}
             </div>
           </section>
@@ -146,15 +244,21 @@ export default function Home() {
 
         {/* Best Sellers Section */}
         {!category && products.filter(p => p.rating >= 4.8).length > 0 && (
-          <section className="mb-16 bg-gray-50 -mx-4 px-4 py-8 rounded-2xl">
+          <section className="px-4 py-8 mb-16 -mx-4 bg-gray-50 rounded-2xl">
             <div className="container mx-auto">
-              <div className="flex justify-between items-center mb-6">
+              <div className="flex items-center justify-between mb-6">
                 <h2 className="text-3xl font-bold">🔥 Best Sellers</h2>
                 <a href="#" className="text-blue-600 hover:underline">Xem tất cả →</a>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
                 {products.filter(p => p.rating >= 4.8).slice(0, 4).map(product => (
-                  <ProductCard key={product._id} product={product} addToCart={handleAddToCart} navigate={navigate} />
+                  <ProductCard 
+                    key={product._id} 
+                    product={product}
+                    onQuickViewAdd={(prod) => {
+                      setAddToCartFeedback({ isOpen: true, product: prod });
+                    }}
+                  />
                 ))}
               </div>
             </div>
@@ -176,21 +280,24 @@ export default function Home() {
 
         {/* All Products Section */}
         {loading ? (
-          <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-xl text-gray-600">Đang tải sản phẩm...</p>
-          </div>
+          <ProductGridSkeleton count={8} />
         ) : products.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-6xl mb-4">📦</p>
+          <div className="py-12 text-center">
+            <p className="mb-4 text-6xl">📦</p>
             <p className="text-xl text-gray-600">Không tìm thấy sản phẩm</p>
           </div>
         ) : (
           <section>
-            {category && <h2 className="text-3xl font-bold mb-6">{category}</h2>}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {products.map(product => (
-                <ProductCard key={product._id} product={product} addToCart={handleAddToCart} navigate={navigate} />
+            {category && <h2 className="mb-6 text-3xl font-bold">{category}</h2>}
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+              {filteredProducts.map(product => (
+                <ProductCard 
+                  key={product._id} 
+                  product={product}
+                  onQuickViewAdd={(prod) => {
+                    setAddToCartFeedback({ isOpen: true, product: prod });
+                  }}
+                />
               ))}
             </div>
           </section>
@@ -198,160 +305,61 @@ export default function Home() {
       </div>
 
       {/* Info Banner */}
-      <div className="bg-gray-100 py-12 mt-12">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div className="py-12 mt-12 bg-gray-100">
+        <div className="container px-4 mx-auto">
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
             <motion.div 
-              className="text-center p-6 bg-white rounded-xl shadow-sm"
+              className="p-6 text-center bg-white shadow-sm rounded-xl"
               whileHover={{ y: -5 }}
             >
-              <FiShield className="text-4xl text-blue-600 mx-auto mb-3" />
-              <h3 className="font-bold mb-2 text-lg">Hàng Chính Hãng</h3>
+              <FiShield className="mx-auto mb-3 text-4xl text-blue-600" />
+              <h3 className="mb-2 text-lg font-bold">Hàng Chính Hãng</h3>
               <p className="text-gray-600">Bảo hành 12 tháng chính hãng Apple</p>
             </motion.div>
             <motion.div 
-              className="text-center p-6 bg-white rounded-xl shadow-sm"
+              className="p-6 text-center bg-white shadow-sm rounded-xl"
               whileHover={{ y: -5 }}
             >
-              <FiTruck className="text-4xl text-green-600 mx-auto mb-3" />
-              <h3 className="font-bold mb-2 text-lg">Giao Hàng Nhanh</h3>
+              <FiTruck className="mx-auto mb-3 text-4xl text-green-600" />
+              <h3 className="mb-2 text-lg font-bold">Giao Hàng Nhanh</h3>
               <p className="text-gray-600">Miễn phí vận chuyển cho đơn trên 5 triệu</p>
             </motion.div>
             <motion.div 
-              className="text-center p-6 bg-white rounded-xl shadow-sm"
+              className="p-6 text-center bg-white shadow-sm rounded-xl"
               whileHover={{ y: -5 }}
             >
-              <FiHeadphones className="text-4xl text-purple-600 mx-auto mb-3" />
-              <h3 className="font-bold mb-2 text-lg">Hỗ Trợ 24/7</h3>
+              <FiHeadphones className="mx-auto mb-3 text-4xl text-purple-600" />
+              <h3 className="mb-2 text-lg font-bold">Hỗ Trợ 24/7</h3>
               <p className="text-gray-600">Tư vấn miễn phí từ chuyên gia Apple</p>
             </motion.div>
           </div>
         </div>
       </div>
+
+      {/* Add to Cart Feedback Modal */}
+      <AddToCartFeedback
+        isOpen={addToCartFeedback.isOpen}
+        onClose={() => setAddToCartFeedback({ isOpen: false, product: null })}
+        product={addToCartFeedback.product}
+        onViewCart={() => navigate('/cart')}
+      />
     </div>
   );
 }
 
-function ProductCard({ product, addToCart, navigate }) {
-  const discount = product.originalPrice 
-    ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
-    : 0;
-
+function FilterSelect({ label, value, onChange, options }) {
   return (
-    <motion.div 
-      className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all group cursor-pointer relative overflow-hidden border border-gray-100"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      whileHover={{ y: -5 }}
-    >
-      {/* Badge */}
-      {discount > 0 && (
-        <div className="absolute top-3 right-3 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold z-10">
-          -{discount}%
-        </div>
-      )}
-
-      {/* Image */}
-      <div className="bg-gradient-to-br from-gray-50 to-gray-100 h-52 flex items-center justify-center overflow-hidden relative">
-        {product.image ? (
-          <img
-            src={product.image}
-            alt={product.name}
-            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-          />
-        ) : (
-          <FaApple className="text-6xl text-gray-300" />
-        )}
-        
-        {/* Quick Actions Overlay */}
-        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={(e) => {
-              e.stopPropagation();
-              navigate(`/product/${product._id}`);
-            }}
-            className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-gray-700 hover:bg-blue-600 hover:text-white transition"
-          >
-            <FiEye className="text-xl" />
-          </motion.button>
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={(e) => {
-              e.stopPropagation();
-              addToCart(product);
-            }}
-            className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-gray-700 hover:bg-green-600 hover:text-white transition"
-          >
-            <FiShoppingCart className="text-xl" />
-          </motion.button>
-        </div>
-      </div>
-
-      <div className="p-5">
-        {/* Category */}
-        <span className="inline-block bg-blue-50 text-blue-600 px-3 py-1 rounded-full text-xs font-semibold mb-2">
-          {product.category}
-        </span>
-
-        {/* Name */}
-        <h3
-          className="font-bold text-lg mb-2 cursor-pointer hover:text-blue-600 line-clamp-2 transition"
-          onClick={() => navigate(`/product/${product._id}`)}
-        >
-          {product.name}
-        </h3>
-
-        {/* Rating */}
-        <div className="flex items-center mb-3">
-          <div className="flex text-yellow-400">
-            {[...Array(5)].map((_, i) => (
-              <FaStar key={i} className={i < Math.round(product.rating || 4) ? 'text-yellow-400' : 'text-gray-200'} />
-            ))}
-          </div>
-          <span className="text-gray-400 text-sm ml-2">({product.reviews?.length || 0})</span>
-        </div>
-
-        {/* Price */}
-        <div className="mb-4">
-          <p className="text-2xl font-bold text-blue-600">
-            ${product.price.toLocaleString()}
-          </p>
-          {product.originalPrice && product.originalPrice !== product.price && (
-            <p className="text-sm text-gray-400 line-through">
-              ${product.originalPrice.toLocaleString()}
-            </p>
-          )}
-        </div>
-
-        {/* Stock */}
-        <p className={`text-sm mb-4 ${product.stock > 0 ? 'text-green-600' : 'text-red-600'}`}>
-          {product.stock > 0 ? `✓ Còn ${product.stock} sản phẩm` : '✗ Hết hàng'}
-        </p>
-
-        {/* Buttons */}
-        <div className="flex gap-2">
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => addToCart(product)}
-            disabled={product.stock === 0}
-            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2.5 px-4 rounded-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
-          >
-            <FiShoppingCart /> Thêm Giỏ
-          </motion.button>
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => navigate(`/product/${product._id}`)}
-            className="bg-gray-100 hover:bg-gray-200 text-gray-700 py-2.5 px-4 rounded-xl font-semibold transition"
-          >
-            <FiEye />
-          </motion.button>
-        </div>
-      </div>
-    </motion.div>
+    <div>
+      <p className="mb-2 text-sm font-semibold text-gray-700">{label}</p>
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500"
+      >
+        {options.map(opt => (
+          <option key={opt.value} value={opt.value}>{opt.label}</option>
+        ))}
+      </select>
+    </div>
   );
 }
