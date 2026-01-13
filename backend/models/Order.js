@@ -7,8 +7,10 @@ const orderSchema = new mongoose.Schema({
   },
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
+    ref: 'User'
+  },
+  guestEmail: {
+    type: String
   },
   items: [{
     productId: {
@@ -56,11 +58,36 @@ const orderSchema = new mongoose.Schema({
   paymentNote: {
     type: String
   },
+  couponCode: {
+    type: String
+  },
+  discountAmount: {
+    type: Number,
+    default: 0
+  },
   status: {
     type: String,
     enum: ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'],
     default: 'pending'
   },
+  statusHistory: [{
+    status: {
+      type: String,
+      enum: ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled']
+    },
+    updatedAt: {
+      type: Date,
+      default: Date.now
+    },
+    updatedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    },
+    note: String
+  }],
+  shippedAt: Date,
+  deliveredAt: Date,
+  cancelledAt: Date,
   createdAt: {
     type: Date,
     default: Date.now
@@ -77,6 +104,30 @@ orderSchema.pre('save', async function(next) {
     // Format: timestamp cuối (dễ copy vào nội dung chuyển khoản)
     this.orderNumber = `${Date.now()}`;
   }
+  
+  // Track status changes
+  if (this.isModified('status')) {
+    if (!this.statusHistory) {
+      this.statusHistory = [];
+    }
+    this.statusHistory.push({
+      status: this.status,
+      updatedAt: new Date(),
+      updatedBy: this.userId
+    });
+    
+    // Set timestamps based on status
+    if (this.status === 'shipped' && !this.shippedAt) {
+      this.shippedAt = new Date();
+    }
+    if (this.status === 'delivered' && !this.deliveredAt) {
+      this.deliveredAt = new Date();
+    }
+    if (this.status === 'cancelled' && !this.cancelledAt) {
+      this.cancelledAt = new Date();
+    }
+  }
+  
   this.updatedAt = new Date();
   next();
 });
