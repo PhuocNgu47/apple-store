@@ -178,10 +178,7 @@ ecommerce-project/
 ## 📚 Tài Liệu
 
 - [QUICK_START.md](./QUICK_START.md) - Hướng dẫn nhanh
-- [ARCHITECTURE.md](./ARCHITECTURE.md) - Kiến trúc dự án
-- [DOCKER_SETUP.md](./DOCKER_SETUP.md) - Hướng dẫn Docker
-- [TEST_GUIDE.md](./TEST_GUIDE.md) - Hướng dẫn test
-- [HUONG_DAN_SEED_DATA.md](./HUONG_DAN_SEED_DATA.md) - Seed dữ liệu
+- [📖 Tài liệu chi tiết](../docs/) - Xem thư mục `docs/` để biết thêm các hướng dẫn chi tiết
 
 ## 🚀 Deploy Production
 

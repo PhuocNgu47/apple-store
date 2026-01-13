@@ -4,20 +4,6 @@ Hướng dẫn nhanh để chạy dự án và test các tính năng.
 
 ## 📋 Cách 1: Docker (Khuyên dùng)
 
-### Windows:
-```bash
-cd ecommerce-project
-start.bat
-```
-
-### Linux/Mac:
-```bash
-cd ecommerce-project
-chmod +x start.sh
-./start.sh
-```
-
-### Hoặc dùng Docker Compose:
 ```bash
 cd ecommerce-project
 docker-compose up --build -d
@@ -175,8 +161,10 @@ npm install
 
 ## 📚 Tài Liệu Thêm
 
-- [DOCKER_SETUP.md](./DOCKER_SETUP.md) - Chi tiết về Docker
-- [TEST_GUIDE.md](./TEST_GUIDE.md) - Hướng dẫn test đầy đủ
-- [ARCHITECTURE.md](./ARCHITECTURE.md) - Kiến trúc dự án
+Xem thư mục `../docs/` để biết thêm các hướng dẫn chi tiết:
+- [DOCKER_SETUP.md](../docs/DOCKER_SETUP.md) - Chi tiết về Docker
+- [TEST_GUIDE.md](../docs/TEST_GUIDE.md) - Hướng dẫn test đầy đủ
+- [ARCHITECTURE.md](../docs/ARCHITECTURE.md) - Kiến trúc dự án
+- [INDEX.md](../docs/INDEX.md) - Danh sách đầy đủ tất cả tài liệu
 
 **Chúc bạn test thành công! 🚀**
