@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore, useCartStore } from '../store';
-import { Button, FlexBetween, Container } from './UI';
+import { Button } from './UI';
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -18,14 +18,14 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="sticky top-0 z-50 bg-white border-b-4 border-blue-600 shadow-md">
-      <Container>
+    <nav className="sticky top-0 z-50 glass border-b border-white/30">
+      <div className="container mx-auto px-4">
         <div className="flex items-center justify-between py-4">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 transition hover:opacity-80">
             <span className="text-4xl">🍎</span>
             <span className="hidden text-2xl font-bold text-gray-900 font-poppins sm:inline">
-              Apple Store
+              Apple
             </span>
           </Link>
 
@@ -67,11 +67,11 @@ export default function Navbar() {
                   </Link>
                 )}
 
-                <div className="flex items-center gap-3 pl-6 border-l">
+                <div className="flex items-center gap-3 pl-6 border-l border-gray-300">
                   <div>
                     <p className="text-sm font-medium text-gray-900">{user?.name}</p>
                     <p className="text-xs text-gray-500">
-                      {user?.role === 'admin' ? 'Administrator' : 'Khách hàng'}
+                      {user?.role === 'admin' ? 'Admin' : 'Khách hàng'}
                     </p>
                   </div>
                   <Button 
@@ -114,7 +114,7 @@ export default function Navbar() {
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="p-4 space-y-3 border-t md:hidden bg-gray-50 animate-slide-up">
+          <div className="p-4 space-y-3 border-t border-gray-200 md:hidden bg-gray-50 animate-slide-up">
             <Link 
               to="/" 
               className="block py-2 font-medium text-gray-700 hover:text-blue-600"
@@ -191,7 +191,7 @@ export default function Navbar() {
             )}
           </div>
         )}
-      </Container>
+      </div>
     </nav>
   );
 }

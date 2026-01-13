@@ -52,17 +52,17 @@ export default function ProductComparison() {
     <div className="my-8">
       <button
         onClick={() => setShowComparison(!showComparison)}
-        className="btn btn-primary mb-6"
+        className="mb-6 btn btn-primary"
       >
         {showComparison ? '✕ Đóng So Sánh' : '🔄 So Sánh iPhone Pro'}
       </button>
 
       {showComparison && (
-        <div className="overflow-x-auto bg-gray-50 rounded-lg p-4">
+        <div className="p-4 overflow-x-auto rounded-lg bg-gray-50">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b-2 border-gray-300">
-                <th className="text-left p-3 font-bold">Thông Số</th>
+                <th className="p-3 font-bold text-left">Thông Số</th>
                 {Object.keys(comparison).map(model => (
                   <th key={model} className="p-3 font-bold text-blue-600">
                     {model}
