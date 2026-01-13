@@ -20,7 +20,7 @@ services:
       MONGODB_URI: mongodb://mongodb:27017/ecommerce
       JWT_SECRET: tmdt_secret_key_123456
       JWT_EXPIRE: 7d
-      NODE_ENV: production
+      NODE_ENV: development
       # SePay Payment Config
       SEPAY_BANK_ID: MB
       SEPAY_ACCOUNT_NO: "0935771670"
@@ -31,14 +31,35 @@ services:
     networks:
       - ecommerce-network
     command: npm start
+    volumes:
+      - ./backend:/app
+      - backend_data:/app/node_modules
+      - ./backend/uploads:/app/uploads
+
+  mongo-express:
+    image: mongo-express:latest
+    container_name: ecommerce-mongo-express
+    depends_on:
+      - mongodb
+    environment:
+      ME_CONFIG_MONGODB_URL: mongodb://mongodb:27017/ecommerce
+      ME_CONFIG_MONGODB_SERVER: mongodb
+      ME_CONFIG_MONGODB_ENABLE_ADMIN: "true"
+      ME_CONFIG_BASICAUTH_USERNAME: admin
+      ME_CONFIG_BASICAUTH_PASSWORD: admin
+    ports:
+      - "8081:8081"
+    networks:
+      - ecommerce-network
 
   frontend:
-    build: ./frontend
+    build: 
+      context: ./frontend
+      args:
+        - VITE_API_URL=http://localhost:5000/api
     container_name: ecommerce-web
     ports:
       - "3000:3000"
-    environment:
-      VITE_API_URL: http://localhost:5000/api
     depends_on:
       - backend
     networks:
@@ -46,6 +67,7 @@ services:
 
 volumes:
   mongo_data:
+  backend_data:
 
 networks:
   ecommerce-network:
